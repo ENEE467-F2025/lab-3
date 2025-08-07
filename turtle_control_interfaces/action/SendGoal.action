@@ -1,0 +1,8 @@
+# Request
+Goal goal
+float32 goal_tol
+---
+# Result
+bool success
+---
+# Feedback
