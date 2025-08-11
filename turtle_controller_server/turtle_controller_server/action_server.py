@@ -1,14 +1,15 @@
 import rclpy
 from rclpy.action import ActionServer, GoalResponse
 from rclpy.node import Node
-from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
+from rclpy.time import Time
+from rclpy.duration import Duration
 
 from turtle_control_interfaces.action import SendGoal
 from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
 
-import time
 import numpy as np
 
 class TurtleControlServer(Node):
@@ -37,6 +38,13 @@ class TurtleControlServer(Node):
         )
         self.controller_rate: float = self.get_parameter("controller_rate").value
 
+        # create a rate
+        # create a rate
+        self.rate = self.create_rate(
+            frequency=self.controller_rate,
+            clock=self.get_clock()
+        )
+
         # Example declaration of multiple parameters
         self.declare_parameters(
             namespace="",
@@ -48,25 +56,27 @@ class TurtleControlServer(Node):
         self.K_1: float = self.get_parameter("K_1").value
         self.K_2: float = self.get_parameter("K_2").value
 
+
+        # Create a seperate cb group for the action server
+        self.action_cb_group = ReentrantCallbackGroup()
         # Create an action server
         self.action_server = ActionServer(
             node=self,
             action_type=SendGoal,
             action_name="send_goal",
             execute_callback=self.execute_callback,
-            goal_callback=self.goal_callback
+            goal_callback=self.goal_callback,
+            callback_group=self.action_cb_group
         )
         # create class variable for the goal request
         self.goal: SendGoal.Goal = None
 
-        # create a separate callback group for the pub/subs
-        self.pub_sub_cb_group = MutuallyExclusiveCallbackGroup()
+        # Pub/sub cb will be registered to the global callback group
         # create cmd_vel publisher
         self.cmd_vel_publisher = self.create_publisher(
             msg_type=Twist,
             topic="/turtle1/cmd_vel",
-            qos_profile=10,
-            callback_group=self.pub_sub_cb_group
+            qos_profile=10
         )
 
         # create a pose subscriber
@@ -74,8 +84,7 @@ class TurtleControlServer(Node):
             msg_type=Pose,
             topic="/turtle1/pose",
             callback=self.pose_callback,
-            qos_profile=10,
-            callback_group=self.pub_sub_cb_group
+            qos_profile=10
         )
 
     def pose_callback(self, msg: Pose):
@@ -121,7 +130,17 @@ class TurtleControlServer(Node):
         y_d = self.goal.goal.y
         goal_tol = self.goal.goal_tol
 
-        while 1:
+        # get current time
+        T1: Time = self.get_clock().now()
+        # convert timeout to a duration
+        timeout: Duration = Duration(
+            seconds=int(self.goal.timeout),
+            nanoseconds=int(self.goal.timeout%1*1e9)
+        )
+
+        # compare elapsed time to timeout
+        while T1 - self.get_clock().now() <= timeout:
+            # reminder to remove this code before distribution
             x_e = x_d - self.x
             y_e = y_d - self.y
             c = np.cos(self.theta)
@@ -138,9 +157,22 @@ class TurtleControlServer(Node):
 
             if d_e <= goal_tol:
                 break
+                
+            # this is a blocking call running inside a callback
+            # must use a reentrant callback group to safely process
+            # this without deadlock 
+            self.rate.sleep()
+        else:
+            # this block only runs if we do NOT break from the loop
+            # i.e. we reached timeout
+            goal_handle.succeed() # a little misleading, but technically correct
+            result = SendGoal.Result()
+            result.success = False
+            self.get_logger().info("Timeout Expired, Goal Not Reached")
 
-            time.sleep(1. / self.controller_rate)
-        
+            return result
+
+        # goal was reached within tol
         goal_handle.succeed()
         result = SendGoal.Result()
         result.success = True

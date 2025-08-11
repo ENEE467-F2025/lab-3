@@ -1,6 +1,7 @@
 # Request
 Goal goal
 float32 goal_tol
+float32 timeout 10. # seconds
 ---
 # Result
 bool success
