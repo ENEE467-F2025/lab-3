@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.action import ActionServer, GoalResponse
+from rclpy.action.server import ServerGoalHandle
 from rclpy.node import Node
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
@@ -12,7 +13,7 @@ from geometry_msgs.msg import Twist
 
 import numpy as np
 
-class TurtleControlServer(Node):
+class TurtleControllerServer(Node):
     """A simple action server to control the turtle.
 
     ...
@@ -23,7 +24,7 @@ class TurtleControlServer(Node):
         """
 
         super().__init__(
-            node_name="turtle_control_server_node"
+            node_name="turtle_controller_server_node"
         )
 
         # class variables for current pose
@@ -38,7 +39,6 @@ class TurtleControlServer(Node):
         )
         self.controller_rate: float = self.get_parameter("controller_rate").value
 
-        # create a rate
         # create a rate
         self.rate = self.create_rate(
             frequency=self.controller_rate,
@@ -63,7 +63,7 @@ class TurtleControlServer(Node):
         self.action_server = ActionServer(
             node=self,
             action_type=SendGoal,
-            action_name="send_goal",
+            action_name="turtle_goal",
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
             callback_group=self.action_cb_group
@@ -87,6 +87,8 @@ class TurtleControlServer(Node):
             qos_profile=10
         )
 
+        self.get_logger().info("Node Initialized")
+
     def pose_callback(self, msg: Pose):
         """Process pose data and store it in memory.
 
@@ -101,16 +103,18 @@ class TurtleControlServer(Node):
 
         """
 
-        # verify that we have recieved pose data
-        if self.x is None:
-            return GoalResponse.REJECT
-
         x_d = goal_request.goal.x
         y_d = goal_request.goal.y
+
+        # verify that we have recieved pose data
+        if self.x is None:
+            self.get_logger().info(f"Rejecting Goal Request ({x_d:0.02f}, {y_d:0.02f}): No Pose Data Recieved")
+            return GoalResponse.REJECT
 
         # verify that this is a valid goal request
         if x_d < 0 or x_d > 11 or y_d < 0 or y_d > 11:
             # goal out of bounds
+            self.get_logger().info(f"Rejecting Goal Request ({x_d:0.02f}, {y_d:0.02f}): Out of Bounds")
             return GoalResponse.REJECT
         
         # valid goal
@@ -119,7 +123,7 @@ class TurtleControlServer(Node):
 
         return GoalResponse.ACCEPT
 
-    def execute_callback(self, goal_handle):
+    def execute_callback(self, goal_handle: ServerGoalHandle):
         """Execute a request for navigation.
 
         """
@@ -182,11 +186,19 @@ class TurtleControlServer(Node):
 
 
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
 
-    my_node = TurtleControlServer()
+    my_node = TurtleControllerServer()
     executor = MultiThreadedExecutor()
     executor.add_node(my_node)
 
-    executor.spin()
+
+    # try-except statement for graceful shutdown
+    try:
+        executor.spin()
+
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        # using print since rclpy context is destroyed after exception
+        print("\nExiting...")
+        my_node.destroy_node()
