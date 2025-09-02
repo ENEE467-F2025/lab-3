@@ -1,0 +1,5 @@
+# to build the image
+docker compose -f lab-3-compose.yml build
+
+# to start the container
+docker compose -f lab-3-compose.yml run --rm lab-3-docker
