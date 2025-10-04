@@ -44,6 +44,14 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
+# install VS Code server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# install python extension
+RUN code-server --install-extension ms-python.python
+COPY extensions/ms-iot.vscode-ros-0.9.6.vsix .
+RUN code-server --install-extension ms-iot.vscode-ros-0.9.6.vsix
+
 # Set datetime and timezone correctly
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo '$TZ' | tee -a /etc/timezone
 
@@ -51,11 +59,16 @@ ENV DEBIAN_FRONTEND=dialog
 
 # install ros packages
 RUN apt-get update && apt-get install -y \
-    ros-jazzy-turtlesim
+    ros-jazzy-turtlesim \
+    ros-jazzy-foxglove-bridge
 
-# Setup user env
-RUN groupadd -g 1111 -o robot
-RUN useradd -ms "/bin/bash -i" --uid 1111 -g 1111 --groups sudo,video robot \
+# defaults
+ARG userid=1002
+ARG groupid=1002
+
+# setup user env
+RUN groupadd -g ${groupid} -o robot
+RUN useradd -ms /bin/bash --uid ${userid} -g ${groupid} --groups sudo,video robot \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 USER robot
@@ -64,15 +77,22 @@ WORKDIR /home/robot
 ENV USER=robot \
     LANG=en_US.UTF-8 \
     HOME=/home/robot \
-    XDG_RUNTIME_DIR=/run/user/1111 \
+    XDG_RUNTIME_DIR=/run/user/${userid} \
+    LIBGL_ALWAYS_SOFTWARE=1 \
     TZ=America/New_York
+
+RUN sudo mkdir -p -m 0700 /run/user/${userid} && \
+    sudo chown robot:robot /run/user/${userid}
 
 # ros workspace
 RUN source /opt/ros/jazzy/setup.bash \
-    && mkdir -p ~/ros2_ws/src
+    && mkdir -p ~/demo_ws/src
 
 RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc \
     && echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc \
     && echo "alias clc=clear" >> ~/.bashrc
+
+# Setup tmux config
+ADD --chown=robot:robot https://raw.githubusercontent.com/MarylandRoboticsCenter/someConfigs/refs/heads/master/.tmux_K.conf /home/robot/.tmux.conf
 
 ENTRYPOINT ["/bin/bash", "-i"]
