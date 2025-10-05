@@ -49,7 +49,7 @@ The lab computers contain a prebuild image so you will not have to build the ima
 
 ## Lab Instructions
 
-Please follow the [lab manual](Lab_3_ROS.pdf) closely. All instructions are contained inside the lab manual.
+Please follow the [lab manual](Lab_3_Intro_to_ROS.pdf) closely. All instructions are contained inside the lab manual.
 
 ## MacOS Instructions
 
