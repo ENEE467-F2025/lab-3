@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'turtle_controller_server'
+package_name = 'random_numbers'
 
 setup(
     name=package_name,
@@ -13,15 +13,19 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='ryan',
-    maintainer_email='rmatheu@umd.edu',
+    maintainer='robot',
+    maintainer_email='robot@todo.todo',
     description='TODO: Package description',
     license='TODO: License declaration',
-    tests_require=['pytest'],
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'console_scripts': [
-            'turtle_controller_server_node = turtle_controller_server.action_server:main',
-            'turtle_controller_client_node = turtle_controller_server.action_client:main'
+            "simple_publisher = random_numbers.simple_publisher:main",
+            "simple_subscriber = random_numbers.simple_subscriber:main",
         ],
     },
 )

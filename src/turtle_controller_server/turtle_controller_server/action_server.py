@@ -144,14 +144,15 @@ class TurtleControllerServer(Node):
 
         # compare elapsed time to timeout
         while T1 - self.get_clock().now() <= timeout:
-            # reminder to remove this code before distribution
             x_e = x_d - self.x
             y_e = y_d - self.y
             c = np.cos(self.theta)
             s = np.sin(self.theta)
 
-            theta_e = np.arctan2( y_e*c - x_e*s, x_e*c + y_e*s )
-            d_e = np.sqrt( x_e**2 + y_e**2 )
+            # compute errors
+            # TODO: Add your code here
+            theta_e = # YOUR CODE HERE
+            d_e = # YOUR CODE HERE
 
             v = Twist()
             v.linear.x = self.K_1*d_e

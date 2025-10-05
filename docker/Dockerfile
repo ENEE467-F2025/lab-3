@@ -40,6 +40,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     xclip \
     x11proto-gl-dev \
     ros-jazzy-rmw-cyclonedds-cpp \
+    python3-pip \
+    screen \
     && rm -rf /var/lib/apt/lists/*
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
@@ -51,6 +53,9 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 RUN code-server --install-extension ms-python.python
 COPY extensions/ms-iot.vscode-ros-0.9.6.vsix .
 RUN code-server --install-extension ms-iot.vscode-ros-0.9.6.vsix
+
+RUN pip install ipython --break-system-packages && \
+    export PATH=/home/robot/.local/bin:$PATH
 
 # Set datetime and timezone correctly
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo '$TZ' | tee -a /etc/timezone
@@ -86,11 +91,11 @@ RUN sudo mkdir -p -m 0700 /run/user/${userid} && \
 
 # ros workspace
 RUN source /opt/ros/jazzy/setup.bash \
-    && mkdir -p ~/demo_ws/src
+    && mkdir -p ~/ros2_ws/src
 
-RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc \
-    && echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc \
-    && echo "alias clc=clear" >> ~/.bashrc
+RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc && \
+    echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc && \
+    echo "alias clc=clear" >> ~/.bashrc
 
 # Setup tmux config
 ADD --chown=robot:robot https://raw.githubusercontent.com/MarylandRoboticsCenter/someConfigs/refs/heads/master/.tmux_K.conf /home/robot/.tmux.conf

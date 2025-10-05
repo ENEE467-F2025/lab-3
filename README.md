@@ -50,3 +50,7 @@ The lab computers contain a prebuild image so you will not have to build the ima
 ## Lab Instructions
 
 Please follow the [lab manual](Lab_3_ROS.pdf) closely. All instructions are contained inside the lab manual.
+
+## MacOS Instructions
+
+For information on running the container on MacOS with X11 forwarding, see [MacOS Instruction](macos.md).
