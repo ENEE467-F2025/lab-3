@@ -81,6 +81,7 @@ WORKDIR /home/robot
 
 ENV USER=robot \
     LANG=en_US.UTF-8 \
+    ROS_LOCALHOST_ONLY=1 \
     HOME=/home/robot \
     XDG_RUNTIME_DIR=/run/user/${userid} \
     LIBGL_ALWAYS_SOFTWARE=1 \
