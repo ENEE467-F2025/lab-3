@@ -82,7 +82,7 @@ WORKDIR /home/robot
 # ROS_LOCALHOST_ONLY is deprecated
 ENV USER=robot \
     LANG=en_US.UTF-8 \
-    ROS_AUTOMATIC_DISCOVERY_RANGE \
+    ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST \
     HOME=/home/robot \
     XDG_RUNTIME_DIR=/run/user/${userid} \
     LIBGL_ALWAYS_SOFTWARE=1 \
