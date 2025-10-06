@@ -94,6 +94,7 @@ RUN source /opt/ros/jazzy/setup.bash \
     && mkdir -p ~/ros2_ws/src
 
 RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc && \
+    echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc && \
     echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc && \
     echo "alias clc=clear" >> ~/.bashrc
 

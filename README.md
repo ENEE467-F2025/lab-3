@@ -38,6 +38,10 @@ The lab computers contain a prebuild image so you will not have to build the ima
     git clone https://github.com/ENEE467-F2025/lab-3.git
     cd lab-3/docker
     ```
+* Enable X11 forwarding
+    ```
+    xhost +local:root
+    ```
 * Run the Docker container
     ```
     docker compose -f lab-1-compose.yml run --rm lab-3-docker

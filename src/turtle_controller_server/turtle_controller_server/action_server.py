@@ -151,8 +151,8 @@ class TurtleControllerServer(Node):
 
             # compute errors
             # TODO: Add your code here
-            theta_e = # YOUR CODE HERE
-            d_e = # YOUR CODE HERE
+            theta_e = None # YOUR CODE HERE
+            d_e = None # YOUR CODE HERE
 
             v = Twist()
             v.linear.x = self.K_1*d_e

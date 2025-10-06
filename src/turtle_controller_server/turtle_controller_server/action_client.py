@@ -62,7 +62,7 @@ def main(args=None):
 
     try:
         while 1:
-            data = input("\nGoal Position x,y: ")
+            data = input("\Goal Position x,y: ")
             x, y = data.split(",")
             try:
                 x = float(x)
