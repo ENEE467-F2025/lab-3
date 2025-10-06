@@ -79,9 +79,10 @@ RUN useradd -ms /bin/bash --uid ${userid} -g ${groupid} --groups sudo,video robo
 USER robot
 WORKDIR /home/robot
 
+# ROS_LOCALHOST_ONLY is deprecated
 ENV USER=robot \
     LANG=en_US.UTF-8 \
-    ROS_LOCALHOST_ONLY=1 \
+    ROS_AUTOMATIC_DISCOVERY_RANGE \
     HOME=/home/robot \
     XDG_RUNTIME_DIR=/run/user/${userid} \
     LIBGL_ALWAYS_SOFTWARE=1 \

@@ -32,7 +32,7 @@ To build the Docker container, ensure that you have [Docker](https://www.docker.
 ## Starting the Container
 
 The lab computers contain a prebuild image so you will not have to build the image.
-* Clone this repo to get the lab-1 code if you haven't done so already
+* Clone this repo to get the lab-3 code if you haven't done so already
     ```
     cd ~/Labs
     git clone https://github.com/ENEE467-F2025/lab-3.git
@@ -44,7 +44,7 @@ The lab computers contain a prebuild image so you will not have to build the ima
     ```
 * Run the Docker container
     ```
-    docker compose -f lab-1-compose.yml run --rm lab-3-docker
+    docker compose -f lab-3-compose.yml run --rm lab-3-docker
     ```
 * Once inside the container, you should be greeted with the following prompt indicating that the container is running
     ```
