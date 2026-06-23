@@ -1,4 +1,4 @@
-# ENEE 467 Fall 2025: Robotics Project Laboratory
+# ENEE 467 Fall 2026: Robotics Project Laboratory
 ## Lab 3: Introduction to Programming with ROS 2
 
 This repository contains a Docker container for the third lab as well as the necessary code templates for completing the exercises.
